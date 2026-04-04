@@ -1,0 +1,50 @@
+import os
+import subprocess
+import time
+
+# --- NETWORK & VPN KONTROL MERKEZİ ---
+class GhostNet:
+    @staticmethod
+    def get_current_ip():
+        """Mevcut dış IP adresini ve lokasyonu çeker"""
+        try:
+            # curl ile hızlı IP ve şehir sorgusu
+            res = subprocess.check_output("curl -s ipinfo.io/json", shell=True).decode()
+            print(f"\033[96m[IP INFO]\033[0m\n{res}")
+        except:
+            print("\033[91m[!] Ağ hatası: IP bilgisi alınamadı.\033[0m")
+
+    @staticmethod
+    def toggle_warp(action="connect"):
+        """Cloudflare WARP kontrolü"""
+        # action: "connect" veya "disconnect"
+        print(f"\033[94m[WARP] {action.capitalize()} işlemi başlatılıyor...\033[0m")
+        os.system(f"warp-cli {action}")
+        time.sleep(2)
+        GhostNet.get_current_ip()
+
+    @staticmethod
+    def kill_switch(enable=True):
+        """VPN koptuğunda interneti tamamen keser (Acil Durum)"""
+        if enable:
+            # Mac Wi-Fi servisini kapatır
+            os.system("networksetup -setnetworkserviceenabled Wi-Fi off")
+            print("\033[91m[!!!] KILL-SWITCH AKTİF: İNTERNET KESİLDİ.\033[0m")
+        else:
+            os.system("networksetup -setnetworkserviceenabled Wi-Fi on")
+            print("\033[92m[✓] İNTERNET GERİ GELDİ.\033[0m")
+
+# --- v6.1 KOMUT ENTEGRASYONU ---
+# Ana döngüne (Architect Core) şunları ekleyebilirsin:
+
+# elif cmd == "/net_scan":
+#     GhostNet.get_current_ip()
+
+# elif cmd == "/warp_on":
+#     GhostNet.toggle_warp("connect")
+
+# elif cmd == "/warp_off":
+#     GhostNet.toggle_warp("disconnect")
+
+# elif cmd == "/panic":
+#     GhostNet.kill_switch(True)
